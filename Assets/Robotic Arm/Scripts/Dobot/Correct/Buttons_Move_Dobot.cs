@@ -20,7 +20,9 @@ public class Buttons_Move_Dobot : MonoBehaviour
 
     private bool[] isPressedReset;
     public Button[] resetRot;
-    private float[] InitialPosition = { 0f, 0f, 0f, 0f};
+    private float[] InitialPosition = { 0f, 0f, 0f, 0f };
+
+    public bool virtualControl = true;
 
     public TMP_InputField[] inputField;
     void Start()
@@ -34,37 +36,45 @@ public class Buttons_Move_Dobot : MonoBehaviour
 
     void Update()
     {
-        //Procesa los movimientos de las partes del robot.
-        for (int i = 0; i < parts.Length; i++)
+        if (virtualControl)
         {
-            float turnRate = turnRates[i];
-            Vector2 limit = limits[i];
-
-            //Comprueba si se está presionando el botón positivo.
-            if (isPressedPositive[i])
+            //Procesa los movimientos de las partes del robot.
+            for (int i = 0; i < parts.Length; i++)
             {
-                rotations[i] += turnRate * Time.deltaTime;
-                rotations[i] = Mathf.Clamp(rotations[i], limit.x, limit.y);
-            }
-            //Comprueba si se está presionando el botón negativo.
-            else if (isPressedNegative[i])
-            {
-                rotations[i] -= turnRate * Time.deltaTime;
-                rotations[i] = Mathf.Clamp(rotations[i], limit.x, limit.y);
-            }
+                float turnRate = turnRates[i];
+                Vector2 limit = limits[i];
 
-            //Asigna la rotación actual a la parte del robot.
-            if (isMove == true)
-            {
-                parts[i].localEulerAngles = GetRotation(i);
-            }
+                //Comprueba si se está presionando el botón positivo.
+                if (isPressedPositive[i])
+                {
+                    rotations[i] += turnRate * Time.deltaTime;
+                    rotations[i] = Mathf.Clamp(rotations[i], limit.x, limit.y);
+                }
+                //Comprueba si se está presionando el botón negativo.
+                else if (isPressedNegative[i])
+                {
+                    rotations[i] -= turnRate * Time.deltaTime;
+                    rotations[i] = Mathf.Clamp(rotations[i], limit.x, limit.y);
+                }
 
-            if (isPressedReset[i])
-            {
-                parts[i].localEulerAngles = ResetRotation(i);
-                rotations[i] = 0f;
-            }
+                //Asigna la rotación actual a la parte del robot.
+                if (isMove == true)
+                {
+                    parts[i].localEulerAngles = GetRotation(i);
+                }
 
+                if (isPressedReset[i])
+                {
+                    parts[i].localEulerAngles = ResetRotation(i);
+                    rotations[i] = 0f;
+                }
+
+            }
+        }
+
+        else if (!virtualControl)
+        {
+            //here is the control with the real
         }
     }
 
@@ -153,4 +163,13 @@ public class Buttons_Move_Dobot : MonoBehaviour
         rotations[index] = degrees;
     }
 
+    public void VirtualControlON()
+    {
+        virtualControl = true;
+    }
+
+    public void RealControlON()
+    {
+        virtualControl = false;
+    }
 }
